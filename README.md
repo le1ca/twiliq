@@ -11,6 +11,9 @@ have specified.
 
 ## Setup
 
+The prerequisites for twiliQ are listed in requirements.txt. You can easily
+install all of them using "pip -r requirements.txt".
+
 To use this app, you first need to create a config file. The provided file, 
 example.config.json, will make a good starting point.
 
@@ -19,13 +22,19 @@ and AuthToken) as well as the number you want to use for outgoing MMS.
 
 In the "twiliq" section, you have to specify a whitelist (list of numbers that
 are allowed to submit MMS to the queue), a list of receipients (who will receive
-the enqueued MMS), and a period (in minutes, which specifies how often a message
+the enqueued MMS), and a period (in seconds, which specifies how often a message
 will be sent from the queue). You must also specify a path for the state file
 (where twiliQ will store its queue in case it needs to restart) as well as the
 interface and port which you want to listen on.
 
 To run twiliQ, simply invoke the twiliq package and provide your config file as
-the first argument (e.g., python twiliq config.json).
+the first argument (e.g., python twiliq config.json). The app does not
+automatically daemonize, so you may want to write a wrapper script, or perhaps
+run it in a screen.
+
+To receive MMS, you must set up twiliQ such that the HTTP endpoint can be hit
+from the Internet. Then, you must log in to Twilio and set the messaging URL for
+your number of choice to that of the twiliQ daemon.
 
 ## Disclaimer
 
