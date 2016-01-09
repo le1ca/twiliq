@@ -1,0 +1,22 @@
+{
+
+"twilio": {
+        "account" : "ACXXXXXXXXXXXXXXXXX" ,
+        "token"   : "YYYYYYYYYYYYYYYYYY"  ,
+        "number"  : "+15556667777"        
+},
+
+"twiliq": {
+        "whitelist"  : [
+                "+12223334444"
+        ],
+        "recipients" : [
+                "+18889990000"
+        ],
+        "period"     : 3600,
+        "statefile"  : "~/.twiliq_state.json",
+        "listen"     : "0.0.0.0",
+        "port"       : 8888
+}
+
+}
