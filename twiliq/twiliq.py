@@ -59,12 +59,9 @@ def main(conf_file):
                         try:
                                 with lock:
                                         body, url = data['queue'].pop(0)
-                                        logging.info("Transmitting: (%s, %s)" % (body, url))
-                                        try:
-                                                tw.mms(config['twiliq']['recipients'], body, url)
-                                        except Exception as e:
-                                                logging.error("E")
                                         json.dump(data, open(statefile, 'w'))
+                                        logging.info("Transmitting: (%s, %s)" % (body, url))
+                                        tw.mms(config['twiliq']['recipients'], body, url)
                         except IndexError as e:
                                 logging.warning("Tried to transmit, but queue is empty")
                         except TwilioRestException as e:
