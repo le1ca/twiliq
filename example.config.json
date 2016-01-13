@@ -3,7 +3,8 @@
 "twilio": {
         "account" : "ACXXXXXXXXXXXXXXXXX" ,
         "token"   : "YYYYYYYYYYYYYYYYYY"  ,
-        "number"  : "+15556667777"        
+        "number"  : "+15556667777"        ,
+        "url"     : "http://foo.com:8888"
 },
 
 "twiliq": {

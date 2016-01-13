@@ -55,6 +55,7 @@ def main(conf_file):
                 config['twilio']['account'],
                 config['twilio']['token'],
                 config['twilio']['number'],
+                config['twilio']['url'],
                 cb
         )
         
