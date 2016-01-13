@@ -1,6 +1,6 @@
 # twiliQ
 Twilio app that enqueues MMS content received, then sends it out to recipients
-at a specified interval.
+at the specified times.
 
 ## What it does
 
@@ -22,10 +22,10 @@ and AuthToken) as well as the number you want to use for outgoing MMS.
 
 In the "twiliq" section, you have to specify a whitelist (list of numbers that
 are allowed to submit MMS to the queue), a list of receipients (who will receive
-the enqueued MMS), and a period (in seconds, which specifies how often a message
-will be sent from the queue). You must also specify a path for the state file
-(where twiliQ will store its queue in case it needs to restart) as well as the
-interface and port which you want to listen on.
+the enqueued MMS), and a cronline which specifies when messages should be sent.
+You must also specify a path for the state file (where twiliQ will store its
+queue in case it needs to restart) as well as the interface and port which you
+want to listen on.
 
 To run twiliQ, simply invoke the twiliq package and provide your config file as
 the first argument (e.g., python twiliq config.json). The app does not
@@ -35,6 +35,17 @@ run it in a screen.
 To receive MMS, you must set up twiliQ such that the HTTP endpoint can be hit
 from the Internet. Then, you must log in to Twilio and set the messaging URL for
 your number of choice to that of the twiliQ daemon.
+
+## Usage
+
+Each SMS or MMS you send to your Twilio number will be added to the send queue.
+Whenever it is time for a message to be sent, the first message will be removed
+from the queue and sent to all of the receipients you specified. The messages
+you enqueue can contain as many or as little media objects as you'd like, and
+they will all be sent exactly as you intended.
+
+At any time, you can send "~STATUS" (without quotes), and twiliQ will reply with
+the number of messages that are currently in the queue.
 
 ## Disclaimer
 

@@ -1,5 +1,7 @@
 from twilio_wrapper import twilio_wrapper
 from twilio import TwilioRestException
+from croniter import croniter
+from datetime import datetime, timedelta
 import threading, json, logging, os, signal
 
 logging.basicConfig(level=logging.DEBUG)
@@ -24,6 +26,9 @@ def main(conf_file):
         lock = threading.Lock()
         sleeper = [None]
         
+        # parse cronline
+        cron = croniter(config['twiliq']['cronline'], datetime.now())
+        
         # interrupt handler to kill sleeper thread
         def interrupt(x, y):
                 if sleeper[0]:
@@ -36,14 +41,14 @@ def main(conf_file):
                 if not from_num in config['twiliq']['whitelist']:
                         logging.info("Incoming message from unlisted number %s" % from_num)
                         return
-                if len(media_list) == 0:
-                        logging.info("Got message with no attachments")
-                        return
-                with lock:
-                        for media_type, url in media_list:
-                                data['queue'].append((body, url))
-                                logging.info("Added message: (%s, %s)" % (body, url))
-                        json.dump(data, open(statefile, 'w'))
+                if body == "~STATUS":
+                        return "Queue contains %d items" % len(data['queue'])
+                else:
+                        url_list = [url for _,url in media_list]
+                        with lock:
+                                data['queue'].append((body, url_list))
+                                logging.info("Added message: (%s, %s)" % (body, url_list))
+                                json.dump(data, open(statefile, 'w'))
         
         # setup twilio client
         tw = twilio_wrapper(
@@ -55,13 +60,18 @@ def main(conf_file):
         
         # sleeper thread timeout routine
         def tick(send_now=True):
+        
+                # send_now is skipped on the first call to tick()
                 if send_now:
                         try:
                                 with lock:
-                                        body, url = data['queue'].pop(0)
+                                        body, urls = data['queue'].pop(0)
                                         json.dump(data, open(statefile, 'w'))
-                                        logging.info("Transmitting: (%s, %s)" % (body, url))
-                                        tw.mms(config['twiliq']['recipients'], body, url)
+                                        # legacy support - if urls is not a list, encapsulate it in a list
+                                        if not instanceof(urls, list):
+                                                urls = [urls]
+                                        logging.info("Transmitting: (%s, %s)" % (body, urls))
+                                        tw.mms(config['twiliq']['recipients'], body, urls)
                         except IndexError as e:
                                 logging.warning("Tried to transmit, but queue is empty")
                         except TwilioRestException as e:
@@ -70,11 +80,18 @@ def main(conf_file):
                         except Exception as e:
                                 logging.error("Unhandled exception")
                                 logging.exception(e)
-                sleeper[0] = threading.Timer(
-                        config['twiliq']['period'],
-                        tick,
-                        ()
-                )
+                
+                # figure out when to run next tick - if cron says to run it in
+                # the past, just run it now
+                delta = max(
+                        timedelta(0),
+                        cron.get_next(datetime) - datetime.now()
+                ).total_seconds()
+                
+                logging.debug("Next event scheduled in %s seconds" % delta)
+                
+                # start the timer
+                sleeper[0] = threading.Timer(delta, tick, ())
                 sleeper[0].start()
         
         # start sleeper
