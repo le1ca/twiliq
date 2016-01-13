@@ -49,7 +49,7 @@ class twilio_wrapper:
                                 body  = body
                         )
                 
-        def mms(self, recipients, body, url):
+        def mms(self, recipients, body, urls):
                 """ Sends the MMS to the list of recipients
                 """
                 for recipient in recipients:
@@ -57,7 +57,7 @@ class twilio_wrapper:
                                 to    = recipient,
                                 from_ = self._number,
                                 body  = body,
-                                media_url = [str(url)]
+                                media_url = [str(url) for url in urls]
                         )
                 
 __all__ = ["twilio_wrapper"]
