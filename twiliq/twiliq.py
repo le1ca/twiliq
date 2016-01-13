@@ -68,7 +68,7 @@ def main(conf_file):
                                         body, urls = data['queue'].pop(0)
                                         json.dump(data, open(statefile, 'w'))
                                         # legacy support - if urls is not a list, encapsulate it in a list
-                                        if not instanceof(urls, list):
+                                        if not isinstance(urls, list):
                                                 urls = [urls]
                                         logging.info("Transmitting: (%s, %s)" % (body, urls))
                                         tw.mms(config['twiliq']['recipients'], body, urls)
